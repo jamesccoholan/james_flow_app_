@@ -4,6 +4,7 @@ import DappyClass from "../utils/DappyClass";
 import { DEFAULT_DAPPIES } from "../config/dappies.config";
 import { LIST_USER_DAPPIES } from "../flow/list-user-dappies.script";
 import { MINT_DAPPY } from "../flow/mint.dappy.tx";
+import { tx } from "@onflow/fcl";
 
 export default function useUserDappies(user, collection, getFUSDBalance) {
   const [state, dispatch] = useReducer(userDappyReducer, {
@@ -50,7 +51,11 @@ export default function useUserDappies(user, collection, getFUSDBalance) {
     try {
       let res = -(await mutate({
         cadence: MINT_DAPPY,
+        limit: 55,
+        args: (arg, t) => [arg(templateID, t.Uint32), arg(amount, t.UFix64)],
       }));
+      await tx(res).onceSealed();
+      await getFUSDBalance();
       await addDappy(templateID);
     } catch (error) {
       console.log(error);
