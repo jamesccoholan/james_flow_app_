@@ -1,29 +1,42 @@
 import { useEffect, useState } from "react";
-import { query } from "@onflow/fcl";
+import { query, mutate, tx } from "@onflow/fcl";
+import { CHECK_COLLECTION } from "../flow/check-collection.script";
+import { CREATE_COLLECTION } from "../flow/create-collection.tx.js";
 
-export default function useCollection() {
+export default function useCollection(user) {
   const [loading, setLoading] = useState(true);
   const [collection, setCollection] = useState(false);
 
   useEffect(() => {
-    if (user?.addr) return;
+    if (!user?.addr) return;
     const checkCollection = async () => {
       try {
         let res = await query({
-          cadence: ,
-            args: (arg, t)=>[arg(user?.addr, t.Address)]
+          cadence: CHECK_COLLECTION,
+          args: (arg, t) => [arg(user?.addr, t.Address)],
         });
-        setCollectionres(res);
-        setLoading(false)
+        setCollection(res);
+        setLoading(false);
       } catch (err) {
         console.log(err);
         setLoading(false);
       }
-      checkCollection();
     };
+    checkCollection();
   }, []);
 
   const createCollection = async () => {
+    try {
+      let res = await mutate({
+        cadence: CREATE_COLLECTION,
+        limit: 55,
+      });
+      await tx(res).onceSealed();
+      setCollection(true);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
     setCollection(true);
   };
 
