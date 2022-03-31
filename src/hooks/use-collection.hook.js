@@ -10,9 +10,11 @@ export default function useCollection() {
     const checkCollection = async () => {
       try {
         let res = await query({
-          cadence:
-            "import DappyConract from 0xDappy pub fun main(addr: Address): Bool {let ref = getAccount(addr).getCapability}",
+          cadence: ,
+            args: (arg, t)=>[arg(user?.addr, t.Address)]
         });
+        setCollectionres(res);
+        setLoading(false)
       } catch (err) {
         console.log(err);
         setLoading(false);
