@@ -7,8 +7,8 @@ import Home from "../pages/Home.page";
 export const ROUTES = [
   { name: "Home", path: "/", component: Home, nav: true },
   { name: "Pieces", path: "/dappies", component: Dappies, nav: true },
-  { name: "Collection", path: "/collection", component: Collection, nav: true },
-  { name: "Packs", path: "/packs", component: Packs, nav: true },
+  { name: "Showcase", path: "/collection", component: Collection, nav: true },
+  { name: "Collections", path: "/packs", component: Packs, nav: true },
   {
     name: "PackDetails",
     path: "/packs/:packID",
