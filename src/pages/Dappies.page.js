@@ -13,13 +13,12 @@ export default function Dappies() {
       <Header
         title={
           <>
-            <span className="highlight">Dappy</span>Store
+            <span className="highlight">Choose </span> Your Player
           </>
         }
         subtitle={
           <>
-            Buy individual <span className="highlight">dappies</span> in our
-            store
+            Purchase <span className="highlight">Below</span>
           </>
         }
       />

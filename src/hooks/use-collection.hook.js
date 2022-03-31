@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { query, mutate, tx } from "@onflow/fcl";
 import { CHECK_COLLECTION } from "../flow/check-collection.script";
 import { CREATE_COLLECTION } from "../flow/create-collection.tx.js";
-
+import { DELETE_COLLECTION } from "../flow/delete-collection.script";
 export default function useCollection(user) {
   const [loading, setLoading] = useState(true);
   const [collection, setCollection] = useState(false);
@@ -41,6 +41,17 @@ export default function useCollection(user) {
   };
 
   const deleteCollection = async () => {
+    try {
+      let res = await mutate({
+        cadence: DELETE_COLLECTION,
+        limit: 75,
+      });
+      await tx(res).onceSealed();
+      setCollection(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
     setCollection(false);
     window.location.reload();
   };

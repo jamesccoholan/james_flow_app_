@@ -12,13 +12,12 @@ export default function Collection() {
       <Header
         title={
           <>
-            My<span className="highlight">Collection</span>
+            Verified <span className="highlight">Art</span>
           </>
         }
         subtitle={
           <>
-            Here are the <span className="highlight">Dappies and Packs</span>{" "}
-            you have collected
+            Display <span className="highlight">Unique</span>
           </>
         }
       />
