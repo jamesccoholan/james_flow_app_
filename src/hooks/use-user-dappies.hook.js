@@ -1,17 +1,19 @@
-import { rest, mutate, user, query, useEffect, useReducer } from "react";
-import { userDappyReducer } from "../reducer/userDappyReducer";
-import DappyClass from "../utils/DappyClass";
-import { DEFAULT_DAPPIES } from "../config/dappies.config";
+import { useEffect, useReducer } from "react";
+import { mutate, query, tx } from "@onflow/fcl";
+
 import { LIST_USER_DAPPIES } from "../flow/list-user-dappies.script";
-import { MINT_DAPPY } from "../flow/mint.dappy.tx";
-import { tx } from "@onflow/fcl";
+import { MINT_DAPPY } from "/Users/jamescoholan/Downloads/crypto-dappy/src/flow/mint.dappy.tx.js";
+import { userDappyReducer } from "../reducer/userDappyReducer";
+import { useTxs } from "../providers/TxProvider";
+import DappyClass from "../utils/DappyClass";
 
 export default function useUserDappies(user, collection, getFUSDBalance) {
   const [state, dispatch] = useReducer(userDappyReducer, {
-    loading: false,
+    oading: false,
     error: false,
     data: [],
   });
+  const { addTx, runningTxs } = useTxs();
 
   useEffect(() => {
     const fetchUserDappies = async () => {
@@ -22,7 +24,8 @@ export default function useUserDappies(user, collection, getFUSDBalance) {
           args: (arg, t) => [arg(user?.addr, t.Address)],
         });
         let mappedDappies = [];
-        for (let key in rest) {
+
+        for (let key in res) {
           const element = res[key];
           let dappy = new DappyClass(
             element.templateID,
@@ -33,8 +36,8 @@ export default function useUserDappies(user, collection, getFUSDBalance) {
           );
           mappedDappies.push(dappy);
         }
-        console.log(res);
-        dispatch({ type: "SUCCESS", payload: [] });
+
+        dispatch({ type: "SUCCESS", payload: mappedDappies });
       } catch (err) {
         dispatch({ type: "ERROR" });
       }
@@ -44,19 +47,28 @@ export default function useUserDappies(user, collection, getFUSDBalance) {
   }, []);
 
   const mintDappy = async (templateID, amount) => {
-    if (collection) {
-      alert("You need to enable collection first, go to the collection");
+    if (!collection) {
+      alert(
+        "You need to enable the collection first. Go to the tab Collection"
+      );
+      return;
+    }
+    if (runningTxs) {
+      alert(
+        "Transactions are still running. Please wait for them to finish first."
+      );
       return;
     }
     try {
-      let res = -(await mutate({
+      let res = await mutate({
         cadence: MINT_DAPPY,
         limit: 55,
-        args: (arg, t) => [arg(templateID, t.Uint32), arg(amount, t.UFix64)],
-      }));
+        args: (arg, t) => [arg(templateID, t.UInt32), arg(amount, t.UFix64)],
+      });
+      addTx(res);
       await tx(res).onceSealed();
-      await getFUSDBalance();
       await addDappy(templateID);
+      await getFUSDBalance();
     } catch (error) {
       console.log(error);
     }
@@ -64,7 +76,12 @@ export default function useUserDappies(user, collection, getFUSDBalance) {
 
   const addDappy = async (templateID) => {
     try {
-      const dappy = DEFAULT_DAPPIES.find((d) => d?.templateID === templateID);
+      let res = await query({
+        cadence: LIST_USER_DAPPIES,
+        args: (arg, t) => [arg(user?.addr, t.Address)],
+      });
+      const dappies = Object.values(res);
+      const dappy = dappies.find((d) => d?.templateID === templateID);
       const newDappy = new DappyClass(dappy.templateID, dappy.dna, dappy.name);
       dispatch({ type: "ADD", payload: newDappy });
     } catch (err) {
@@ -74,7 +91,11 @@ export default function useUserDappies(user, collection, getFUSDBalance) {
 
   const batchAddDappies = async (dappies) => {
     try {
-      const allDappies = DEFAULT_DAPPIES;
+      let res = await query({
+        cadence: LIST_USER_DAPPIES,
+        args: (arg, t) => [arg(user?.addr, t.Address)],
+      });
+      const allDappies = Object.values(res);
       const dappyToAdd = allDappies.filter((d) =>
         dappies.includes(d?.templateID)
       );

@@ -1,8 +1,9 @@
-import { mutate, query, tx } from "@onflow/fcl";
 import { useEffect, useReducer } from "react";
 import { CREATE_FUSD_VAULT } from "../flow/create-fusd-vault.tx";
 import { GET_FUSD_BALANCE } from "../flow/get-fusd-balance.script";
 import { defaultReducer } from "../reducer/defaultReducer";
+import { query, mutate, tx } from "@onflow/fcl";
+import { useTxs } from "../providers/TxProvider";
 
 export default function useFUSD(user) {
   const [state, dispatch] = useReducer(defaultReducer, {
@@ -10,6 +11,7 @@ export default function useFUSD(user) {
     error: false,
     data: null,
   });
+  const { addTx } = useTxs();
 
   useEffect(() => {
     getFUSDBalance();
@@ -36,7 +38,9 @@ export default function useFUSD(user) {
     try {
       let transaction = await mutate({
         cadence: CREATE_FUSD_VAULT,
+        limit: 100,
       });
+      addTx(transaction);
       await tx(transaction).onceSealed();
       dispatch({ type: "SUCCESS" });
     } catch (err) {
