@@ -4,4 +4,4 @@ export const LIST_DAPPY_TEMPLATES = `
   pub fun main(): {UInt32: DappyContract.Template} {
     return DappyContract.listTemplates()
   }
-`;
+`

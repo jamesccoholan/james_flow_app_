@@ -1,3 +1,4 @@
+
 import FungibleToken from "./FungibleToken.cdc"
 
 pub contract DappyContract {
@@ -262,7 +263,7 @@ pub contract DappyContract {
       let el = &self.families[key] as &Family
       families.append(FamilyReport(
         name: el.name, 
-        familyID: el.familyID,
+        familyID: el.familyID, 
         templates: el.templates, 
         lazy: el.lazy, 
         price: el.price

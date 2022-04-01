@@ -1,25 +1,25 @@
 export const defaultReducer = (state, action) => {
   switch (action.type) {
-    case "PROCESSING":
+    case 'PROCESSING':
       return {
         ...state,
         loading: true,
-        error: false,
-      };
-    case "SUCCESS":
+        error: false
+      }
+    case 'SUCCESS':
       return {
         ...state,
         loading: false,
         error: false,
-        data: action.payload,
-      };
-    case "ERROR":
+        data: action.payload
+      }
+    case 'ERROR':
       return {
         ...state,
         loading: false,
-        error: true,
-      };
+        error: true
+      }
     default:
-      throw new Error();
+      throw new Error()
   }
-};
+}
